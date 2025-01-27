@@ -20,110 +20,55 @@ fun ListScreen(
     onDelete: (Product) -> Unit,
     onUpdate: (Product) -> Unit
 ) {
-    var showEditDialog by remember { mutableStateOf(false) }
-    var selectedProduct by remember { mutableStateOf<Product?>(null) }
+    var editProduct by remember { mutableStateOf<Product?>(null) }
     
-    var editName by remember { mutableStateOf("") }
-    var editUrgent by remember { mutableStateOf(false) }
-    var editPrice by remember { mutableStateOf("") }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+    LazyColumn(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(products) { product ->
-            Card(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
+            Card {
+                Row(Modifier.padding(8.dp)) {
+                    Column(Modifier.weight(1f)) {
                         Text(product.name)
-                        Text("Price: $${product.price}")
-                        if (product.urgent) {
-                            Text("URGENT")
-                        }
+                        Text("$${product.price}")
+                        if (product.urgent) Text("URGENT")
                     }
-                    
-                    Row {
-                        IconButton(onClick = {
-                            selectedProduct = product
-                            editName = product.name
-                            editUrgent = product.urgent
-                            editPrice = product.price.toString()
-                            showEditDialog = true
-                        }) {
-                            Icon(Icons.Default.Edit, "Edit")
-                        }
-                        IconButton(onClick = { onDelete(product) }) {
-                            Icon(Icons.Default.Delete, "Delete")
-                        }
+                    IconButton(onClick = { editProduct = product }) { 
+                        Icon(Icons.Default.Edit, null) 
+                    }
+                    IconButton(onClick = { onDelete(product) }) { 
+                        Icon(Icons.Default.Delete, null) 
                     }
                 }
             }
         }
     }
 
-    if (showEditDialog && selectedProduct != null) {
+    editProduct?.let { product ->
+        var name by remember { mutableStateOf(product.name) }
+        var urgent by remember { mutableStateOf(product.urgent) }
+        var price by remember { mutableStateOf(product.price.toString()) }
+        
         AlertDialog(
-            onDismissRequest = { showEditDialog = false },
-            title = { Text("Edit Product") },
+            onDismissRequest = { editProduct = null },
+            title = { Text("Edit") },
             text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TextField(
-                        value = editName,
-                        onValueChange = { editName = it },
-                        label = { Text("Product Name") }
-                    )
-                    
-                    TextField(
-                        value = editPrice,
-                        onValueChange = { editPrice = it },
-                        label = { Text("Price") }
-                    )
-                    
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = editUrgent,
-                            onCheckedChange = { editUrgent = it }
-                        )
+                Column {
+                    TextField(name, { name = it })
+                    TextField(price, { price = it })
+                    Row { 
+                        Checkbox(urgent, { urgent = it })
                         Text("Urgent")
                     }
                 }
             },
             confirmButton = {
-                Button(
-                    onClick = {
-                        val priceDouble = editPrice.toDoubleOrNull() ?: 0.0
-                        selectedProduct?.let { product ->
-                            onUpdate(product.copy(
-                                name = editName,
-                                urgent = editUrgent,
-                                price = priceDouble
-                            ))
-                        }
-                        showEditDialog = false
-                    },
-                    enabled = editName.isNotBlank() && editPrice.isNotBlank()
-                ) {
-                    Text("Update")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEditDialog = false }) {
-                    Text("Cancel")
-                }
+                Button(onClick = {
+                    onUpdate(product.copy(
+                        name = name,
+                        urgent = urgent,
+                        price = price.toDoubleOrNull() ?: 0.0
+                    ))
+                    editProduct = null
+                }) { Text("Update") }
             }
         )
     }

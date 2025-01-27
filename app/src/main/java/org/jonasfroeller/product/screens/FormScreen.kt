@@ -14,51 +14,19 @@ fun FormScreen(onSubmit: (Product) -> Unit) {
     var urgent by remember { mutableStateOf(false) }
     var price by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Product Name") }
-        )
-
-        TextField(
-            value = price,
-            onValueChange = { price = it },
-            label = { Text("Price") }
-        )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Checkbox(
-                checked = urgent,
-                onCheckedChange = { urgent = it }
-            )
+    Column(Modifier.padding(16.dp)) {
+        TextField(name, { name = it }, label = { Text("Name") })
+        TextField(price, { price = it }, label = { Text("Price") })
+        Row { 
+            Checkbox(urgent, { urgent = it })
             Text("Urgent")
         }
-
         Button(
             onClick = {
-                val priceDouble = price.toDoubleOrNull() ?: 0.0
-                val product = Product(
-                    id = UUID.randomUUID(),
-                    name = name,
-                    urgent = urgent,
-                    price = priceDouble
-                )
-                onSubmit(product)
-                name = ""
-                urgent = false
-                price = ""
+                onSubmit(Product(name = name, urgent = urgent, price = price.toDoubleOrNull() ?: 0.0))
+                name = ""; urgent = false; price = ""
             },
             enabled = name.isNotBlank() && price.isNotBlank()
-        ) {
-            Text("Add Product")
-        }
+        ) { Text("Add") }
     }
 }

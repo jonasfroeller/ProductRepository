@@ -23,57 +23,30 @@ import org.jonasfroeller.product.viewModel.ProductViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            ProductTheme {
-                MainScreen()
-            }
-        }
-    }
-}
-
-@Composable
-fun MainScreen() {
-    val navController = rememberNavController()
-    val viewModel: ProductViewModel = viewModel()
-    
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.List, "List") },
-                    label = { Text("Products") },
-                    selected = navController.currentDestination?.route == "list",
-                    onClick = { navController.navigate("list") }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Add, "Add") },
-                    label = { Text("Add") },
-                    selected = navController.currentDestination?.route == "form",
-                    onClick = { navController.navigate("form") }
-                )
-            }
-        }
-    ) { padding ->
-        NavHost(
-            navController = navController,
-            startDestination = "list",
-            modifier = Modifier.padding(padding)
-        ) {
-            composable("list") {
-                ListScreen(
-                    products = viewModel.products,
-                    onDelete = viewModel::deleteProduct,
-                    onUpdate = viewModel::updateProduct
-                )
-            }
-            composable("form") {
-                FormScreen(
-                    onSubmit = { product ->
-                        viewModel.createProduct(product)
-                        navController.navigate("list")
+            val navController = rememberNavController()
+            val viewModel: ProductViewModel = viewModel()
+            
+            Scaffold(
+                bottomBar = {
+                    NavigationBar {
+                        NavigationBarItem(
+                            icon = { Icon(Icons.Default.List, "List") },
+                            selected = navController.currentDestination?.route == "list",
+                            onClick = { navController.navigate("list") }
+                        )
+                        NavigationBarItem(
+                            icon = { Icon(Icons.Default.Add, "Add") },
+                            selected = navController.currentDestination?.route == "form",
+                            onClick = { navController.navigate("form") }
+                        )
                     }
-                )
+                }
+            ) { padding ->
+                NavHost(navController, "list", Modifier.padding(padding)) {
+                    composable("list") { ListScreen(viewModel.products, viewModel::deleteProduct, viewModel::updateProduct) }
+                    composable("form") { FormScreen { viewModel.createProduct(it); navController.navigate("list") } }
+                }
             }
         }
     }
