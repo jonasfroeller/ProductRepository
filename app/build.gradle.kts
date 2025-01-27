@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "org.jonasfroeller.product"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "org.jonasfroeller.product"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
