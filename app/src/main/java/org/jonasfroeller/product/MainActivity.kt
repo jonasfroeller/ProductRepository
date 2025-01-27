@@ -4,14 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import org.jonasfroeller.product.screens.FormScreen
+import org.jonasfroeller.product.screens.ListScreen
 import org.jonasfroeller.product.ui.theme.ProductTheme
+import org.jonasfroeller.product.viewModel.ProductViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +26,55 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ProductTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                MainScreen()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ProductTheme {
-        Greeting("Android")
+fun MainScreen() {
+    val navController = rememberNavController()
+    val viewModel: ProductViewModel = viewModel()
+    
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.List, "List") },
+                    label = { Text("Products") },
+                    selected = navController.currentDestination?.route == "list",
+                    onClick = { navController.navigate("list") }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Add, "Add") },
+                    label = { Text("Add") },
+                    selected = navController.currentDestination?.route == "form",
+                    onClick = { navController.navigate("form") }
+                )
+            }
+        }
+    ) { padding ->
+        NavHost(
+            navController = navController,
+            startDestination = "list",
+            modifier = Modifier.padding(padding)
+        ) {
+            composable("list") {
+                ListScreen(
+                    products = viewModel.products,
+                    onDelete = viewModel::deleteProduct,
+                    onUpdate = viewModel::updateProduct
+                )
+            }
+            composable("form") {
+                FormScreen(
+                    onSubmit = { product ->
+                        viewModel.createProduct(product)
+                        navController.navigate("list")
+                    }
+                )
+            }
+        }
     }
 }

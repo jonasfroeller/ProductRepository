@@ -1,7 +1,16 @@
 {
-  "objects": [
+  "products": [
     {
-      "property": "value"
+      "id": "01fe8c58-cf0d-4303-b54e-acfbb72da903",
+      "name": "123",
+      "price": 222,
+      "urgent": true
+    },
+    {
+      "id": "dfdf8f2f-57f9-4afb-92f5-9c730fdd8bbe",
+      "name": "22",
+      "price": 222,
+      "urgent": true
     }
   ]
 }
