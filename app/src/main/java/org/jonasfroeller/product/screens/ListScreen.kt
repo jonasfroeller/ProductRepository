@@ -54,9 +54,9 @@ fun ListScreen(
                 Column {
                     TextField(name, { name = it })
                     TextField(price, { price = it })
-                    Row { 
+                    Row(verticalAlignment = Alignment.CenterVertically) { 
                         Checkbox(urgent, { urgent = it })
-                        Text("Urgent")
+                        Text("Urgent", Modifier.clickable { urgent = !urgent })
                     }
                 }
             },
